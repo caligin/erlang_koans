@@ -1,26 +1,42 @@
--module('01-equalities').
-%-export([meditations/0]).
--compile(export_all).
+-module(koan_engine).
+-behaviour(application).
+-behaviour(supervisor).
 
--define(KOAN(Meditation, Facts, Expectation),
-  case Facts of
-    Expectation -> ok
-  end).
+-export([start/2]).
+-export([stop/1]).
+
+-export([init/1]).
+
+-export([run/0]).
+
+%% application
+
+start(_StartType, _StartArgs) ->
+    register(koan_engine, self()),
+    SupervisorRef = supervisor:start_link({local, koan_supervisor}, ?MODULE, []),
+    ok = gen_event:add_handler(koan_changes, koan_changes, []),
+    SupervisorRef.
+
+stop(_State) ->
+    ok.
+
+%% supervisor
+
+init(_) ->
+    {ok, {
+        { one_for_one, 5, 100 },
+        [
+            {koan_changes, {gen_event, start_link, [{local, koan_changes}]}, permanent, 5000, worker, [dynamic]},
+            {koan_scanner, {koan_scanner, start_link, []}, permanent, 5000, worker, [koan_scanner]}
+        ]
+    }}.
+
+%% API
 
 run()->
   run_koan("src/01-equalities.eko").
 
-
-evalisevil(String) ->
-  {ok, Tokens, _End} = erl_scan:string(String),
-  {ok, ExprList} = erl_parse:parse_exprs(Tokens),
-  try erl_eval:exprs(ExprList, [{'__', 'fill in the blank'}]) of
-    {value, Value, _Boh} -> io:format("asd~n",[]), Value;
-    Other -> io:format("que~n",[]), Other
-  catch
-    error:Reason -> Reason
-  end.
-
+%% private
 
 run_koan(KoanFilename) -> 
     {ok, Bin} = file:read_file(KoanFilename),
@@ -35,7 +51,6 @@ tokens_to_statements(Tokens) ->
   tokens_to_statements([],[],Tokens).
 
 tokens_to_statements(StatementsReversed, _CurrentKoanTokens, []) ->
-  %% this means trailing tokens after last dot are discarded
   lists:reverse(StatementsReversed);
 tokens_to_statements(StatementsReversed, CurrentStatementTokensReversed, [{dot, _} = Dot | MoreTokens]) ->
   tokens_to_statements([lists:reverse(CurrentStatementTokensReversed, [Dot]) | StatementsReversed], [], MoreTokens);
@@ -53,7 +68,7 @@ execute_koans([H | T]) ->
     {error, _Whatever} -> ok
   end.
 
-execute_koan({Meditation, Expression} = Koan) ->
+execute_koan({_Meditation, Expression} = Koan) ->
   case has_blanks(Expression) of
     true -> 
       print_koan_failure("Fill the blanks in your knowledge", Koan),
@@ -115,3 +130,42 @@ eval_koan_expr(Expression) ->
     error:Reason -> {error, Reason}
   end.
 
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+
+tokens_of(String) ->
+  {ok, Tokens, _End} = erl_scan:string(String),
+  Tokens.
+
+tokens_to_statements_test_() ->
+  [ {"a statement up to dot is a single element", ?_assertEqual(1, length(tokens_to_statements(tokens_of("an_atom."))))},
+    {"a tuple is a statement", ?_assertEqual(1, length(tokens_to_statements(tokens_of("{a, tuple}."))))},
+    {"two tuples separated by dot are two statements", ?_assertEqual(2, length(tokens_to_statements(tokens_of("{a, tuple}. {another, tuple}."))))},
+    {"after last dot stuff not terminated is dropped", ?_assertEqual(1, length(tokens_to_statements(tokens_of("{a, tuple}. no dot after this"))))}
+  ].
+
+parse_string(String) ->
+  Tokens = tokens_of(String),
+  {ok, Parsed} = erl_parse:parse_exprs(Tokens),
+  Parsed.
+
+retain_koans_test_() ->
+  [ {"a tuple of string, other is retained", ?_test([_Something] = retain_koans([parse_string("{\"str\", atom}.")]))},
+    {"a tuple of three+ is not retained", ?_test([] = retain_koans([parse_string("{\"str\", atom, another_atom}.")]))},
+    {"a list is not retained", ?_test([] = retain_koans([parse_string("[\"str\", atom].")]))},
+    {"a tuple of non-string, other is not retained", ?_test([] = retain_koans([parse_string("{atom, other_atom}.")]))}
+  ].
+
+has_blanks_test_() ->
+  [ {"an integer has no blanks", ?_assertNot(has_blanks(parse_string("1.")))},
+    {"a float has no blanks", ?_assertNot(has_blanks(parse_string("1.2.")))},
+    {"a string has no blanks", ?_assertNot(has_blanks(parse_string("\"str\".")))},
+    {"an atom has no blanks", ?_assertNot(has_blanks(parse_string("atom.")))},
+    {"a variable has no blanks when has non _ characters", ?_assertNot(has_blanks(parse_string("Var_.")))},
+    {"a variable has no blanks when is the catchall pattern", ?_assertNot(has_blanks(parse_string("_.")))},
+    {"a variable has blanks when contains only and more than one _", ?_assert(has_blanks(parse_string("___.")))},
+    {"a match has blanks when one of the sides has blanks", ?_assert(has_blanks(parse_string("___ = 1.")))},
+    {"a match has no blanks when none one of the sides has blanks", ?_assertNot(has_blanks(parse_string("1 = 2.")))}
+  ].
+
+-endif.

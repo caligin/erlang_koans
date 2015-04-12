@@ -1,0 +1,16 @@
+{application, erlang_koans, [
+    {description, "Erlang Koans"},
+    {vsn, "1.0.0"},
+    {registered, []},
+    {applications, [
+        kernel,
+        stdlib
+    ]},
+    {mod, {koan_engine, []}},
+    {modules, [
+        koan_engine,
+        koan_changes,
+        koan_scanner
+    ]},
+    {env, []}
+ ]}.
