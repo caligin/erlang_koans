@@ -1,0 +1,23 @@
+{"You can create a set by converting a list",
+    sets:add_element(1, sets:new()) = sets:from_list(__) }.
+
+{"To count it you can count on someone knowledgeable",
+    3 = __:size(sets:from_list([1, 2, 3])) }.
+
+{"One you become as enlightened as a set, you stop repeating yourself",
+    __ = sets:to_list(sets:from_list([1, 1, 1])) }.
+
+{"Set diversity aside and unite",
+    Odds = sets:from_list([1, 3]),
+    Evens = sets:from_list([2, 4]),
+    __ = sets:to_list(sets:union(Odds, Evens))}.
+
+{"Or try to find what goals you have both set for yourselves",
+    YourGoals = sets:from_list([run, eat, sunbathe]),
+    MyGoals = sets:from_list([eat, drink, drink_more]),
+    __ = sets:to_list(sets:intersection(YourGoals, MyGoals)) }.
+
+{"You can let what makes you different emerge",
+    IAm = sets:from_list([learning, some, erlang, for, great, good]),
+    EveryoneIs = sets:from_list([learning, some, thing, for, great, good]),
+    __ = sets:to_list(sets:difference(IAm, EveryoneIs)) }.

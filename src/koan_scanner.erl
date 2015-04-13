@@ -22,7 +22,7 @@
 
 -spec start_link() -> {ok, pid()}.
 start_link() ->
-	gen_server:start_link(?MODULE, [], []).
+    gen_server:start_link(?MODULE, [], []).
 
 %% gen_server.
 
@@ -39,24 +39,24 @@ handle_cast(scan, State) ->
         true -> gen_event:notify(koan_changes, koan_change);
         false -> ok        
     end,
-    timer:apply_after(?SCAN_INTERVAL, gen_server, cast, [self(), scan]),
+    {ok, _Tref} = timer:apply_after(?SCAN_INTERVAL, gen_server, cast, [self(), scan]),
     {noreply, State#state{ times = NewTimes }};
 handle_cast(_Msg, State) ->
-	{noreply, State}.
+    {noreply, State}.
 
 handle_info(_Info, State) ->
-	{noreply, State}.
+    {noreply, State}.
 
 terminate(_Reason, _State) ->
-	ok.
+    ok.
 
 code_change(_OldVsn, State, _Extra) ->
-	{ok, State}.
+    {ok, State}.
 
 %% private
 
 koan_times() ->
-    {ok, Files} = file:list_dir("src"),
+    {ok, Files} = file:list_dir("src/koans"),
     [ {F, last_write_of(F)} || F <- Files, is_koan(F)].
 
 is_koan(File) ->
@@ -82,12 +82,12 @@ changes_present([_AtLeastOne | _Others], []) ->
 
 
 changes_test_() ->
-  Past = {{1,1,1}, {1,1,1}},
-  Present = {{1,1,1}, {1,1,2}},
+  Past = {{1, 1, 1}, {1, 1, 1}},
+  Present = {{1, 1, 1}, {1, 1, 2}},
   File = "bla.eko",
   GenericEntry = {File, Present},
-  [ {"two emply lists has no changes", ?_assertNot(changes_present([],[]))},
-    {"has changes when new element", ?_assert(changes_present([],[GenericEntry]))},
+  [ {"two emply lists has no changes", ?_assertNot(changes_present([], []))},
+    {"has changes when new element", ?_assert(changes_present([], [GenericEntry]))},
     {"has changes when deleted element", ?_assert(changes_present([GenericEntry], []))},
     {"has changes when existent element has more recent modify date", ?_assert(changes_present([{File, Past}], [{File, Present}]))},
     {"has no changes when all entries were known and dates are not newer", ?_assertNot(changes_present([GenericEntry], [GenericEntry]))}

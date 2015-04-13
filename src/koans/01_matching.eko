@@ -1,0 +1,39 @@
+{"We shall contemplate truth by testing reality, via matching",
+    __ = true }.
+
+{"To understand reality, we must compare our expectations against reality",
+    __ = (2 + 2) }.
+
+{"You can test matching of many things",
+    (3 + 4) = 7 = (2 + __) }.
+
+{"Thinking of something as a whole or as one part is a different view of the world",
+    __ = (2 =:= 2/1) }.
+
+{"You cannot generally float to heavens of integers",
+    __ = (2 =:= 2.0) }.
+
+{"But a looser equality is also possible",
+    __ = (2 == 2.0) }.
+
+{"Something is not equal to nothing",
+    __ = not (1 =:= undefined) }.
+
+{"Strings, and binary strings, and atoms: oh my!",
+    __ = ("foo" =:= <<"foo">>) or (<<"foo">> =:= foo) }.
+
+{"Expressing our expectations, we can define reality",
+    __ = 2,
+    2 = Two }.
+
+{"Once the truth is spoken, reality cannot be changed",
+    {badmatch, _UnmatchedValue} = try
+        Two = 2,
+        Two = __
+    catch
+        error:Reason -> Reason
+    end }.
+
+{"But we can decide not to care by keeping our mind blank",
+    _ = 2,
+    __ = 3 }.

@@ -1,0 +1,54 @@
+{"Lists are built one step at a time, but they can be expressed in a simpler way",
+    [__, __, __] = [1 | [2 | [3 | []]]] }.
+
+{"First comes the head, hd for friends",
+    __ = hd([1, 2, 3]) }.
+
+{"Then comes the rest, known as the tail",
+    __ = tl([1, 2, 3]) }.
+
+{"When cons is an expectation, we can decapitate lists",
+    [__ | _Tail] = [1, 2, 3] }.
+
+{"Take your mind outside the box",
+    [__] = [mind],
+    mind = Free }.
+
+{"And use your imagination to mix things up",
+    ["kahlúa", vodka, <<"cream">>] = ["kahlúa" | __] }.
+
+{"Count your blessings",
+    __ = length([dracula, dooku, chocula]) }.
+
+{"Before they are gone",
+    __ = length([]) }.
+
+{"The rest, when nothing is left, is empty",
+    __ = tl([1]) }.
+
+{"Construction by adding an element to the front is easy",
+    [__, __, __] = [1 | [2, 3]] }.
+
+{"Concatenating another list at the end isn't hard either",
+    [__, __, __] = [1] ++ [2, 3] }.
+
+{"When you grow up you leave behind who you were",
+    Young = [1, 2],
+    Grown = [3 | Young],
+    __ = Young,
+    __ = Grown }.
+
+{"Can't pop off a head that's not there",
+    __ = try
+        hd([])
+    catch
+        error:badarg -> "No head!"
+    end }.
+
+{"Without a head there can't be anything else",
+    __ = try
+        tl([])
+    catch
+        error:badarg -> "Nothing left!"
+    end }.
+

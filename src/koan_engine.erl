@@ -48,7 +48,7 @@ run_koan(KoanFilename) ->
     execute_koans(Koans).
 
 tokens_to_statements(Tokens) ->
-  tokens_to_statements([],[],Tokens).
+  tokens_to_statements([], [], Tokens).
 
 tokens_to_statements(StatementsReversed, _CurrentKoanTokens, []) ->
   lists:reverse(StatementsReversed);
@@ -90,7 +90,7 @@ has_blanks({string, _, _}) ->
   false;
 has_blanks({atom, _, _}) ->
   false;
-has_blanks({match,_,Pattern,Expression}) ->
+has_blanks({match, _, Pattern, Expression}) ->
   has_blanks(Pattern) orelse has_blanks(Expression);
 has_blanks([]) ->
   false;
@@ -99,20 +99,20 @@ has_blanks([H | T]) ->
     true -> true;
     false -> has_blanks(T)
   end;
-has_blanks({var,_,'_'}) ->
+has_blanks({var, _, '_'}) ->
   false; %% this is the catchall so it's permitted
-has_blanks({var,_,VarAtom}) ->
+has_blanks({var, _, VarAtom}) ->
   lists:all(fun(C) -> C =:= $_ end, atom_to_list(VarAtom));
 has_blanks({tuple, _, TupleElements}) ->
   has_blanks(TupleElements);
-has_blanks({nil,_}) ->
+has_blanks({nil, _}) ->
   false;
-has_blanks({cons, _,Consed,Consee}) ->
+has_blanks({cons, _, Consed, Consee}) ->
   has_blanks(Consed) orelse has_blanks(Consee);
   %%ignoring binaries looks too difficoult
-has_blanks({op,_,_Op,Lhs,Rhs}) ->
+has_blanks({op, _, _Op, Lhs, Rhs}) ->
   has_blanks(Lhs) orelse has_blanks(Rhs);
-has_blanks({op,_,_Op,Expression}) ->
+has_blanks({op, _, _Op, Expression}) ->
   has_blanks(Expression);
 has_blanks(_Expression) ->
   false.

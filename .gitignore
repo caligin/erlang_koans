@@ -13,3 +13,4 @@ relx
 ebin
 .erlang.mk.*
 logs
+elvis

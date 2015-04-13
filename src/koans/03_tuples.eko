@@ -1,0 +1,21 @@
+{"A tuple is like a molecule: elements bound together",
+    Water = {_, _, _},
+    hydrogen = element(1, Water),
+    hydrogen = element(2, Water),
+    oxygen = element(3, Water) }.
+
+{"Once you know the structure of existence, you start looking at the smaller details",
+    Benzene = {{hydrogen, 6}, {carbon, 6}},
+    {{hydrogen, HydrogenAtoms}, {carbon, CarbonAtoms}},
+    __ = HydrogenAtoms = CarbonAtoms }.
+
+{"Or maybe, when you look only at the structure, you don't care about details at all",
+    {{hydrogen, _}, {carbon, _}} = {__ } }.
+
+{"Sometimes you need to embrace change, even when the outcome is supposed to be toxic",
+    __ = setelement(2, {{hydrogen, 2}, oxygen}, {oxygen, 2})}.
+
+{"But remember that as you change so does your identity",
+    Water = {{hydrogen, 2}, oxygen},
+    _HydrogenPeroxide = setelement(2, Water, {oxygen, 2})},
+    __ = Water.
