@@ -42,6 +42,7 @@ run()->
 %% private
 
 run_koans([]) ->
+  io:format("You have completed the Erlang Koans. Namaste.~n~n", []),
   ok;
 run_koans([KoanFilePath | Others]) ->
   case run_koan(KoanFilePath) of
@@ -131,8 +132,13 @@ has_blanks(_Expression) ->
 print_koan_failure(FailureMessage, {Meditation, Expression}) -> 
   io:format("Now meditate:~n",[]), %todo: filename + line would be handy
   io:format(Meditation ++ "~n",[]),
-  io:format("~p~n",[FailureMessage]),
-  io:format("~s~n",[erl_pp:expr(Expression)]). %% TODO: convert in reasonable erlang
+  io:format("~s~n",[format_failure_message(FailureMessage)]),
+  io:format("~s~n~n",[erl_pp:expr(Expression)]). %% TODO: convert in reasonable erlang
+
+format_failure_message(M) when is_list(M) ->
+  M;
+format_failure_message(M) ->
+  "Not quite: " ++ io_lib:format("~p", [M]).
 
 eval_koan_expr(Expression) ->
   try erl_eval:exprs([Expression], []) of
