@@ -14,3 +14,4 @@ ebin
 .erlang.mk.*
 logs
 elvis
+ttb_last_config
