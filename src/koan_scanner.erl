@@ -35,7 +35,7 @@ handle_call(_Request, _From, State) ->
 
 handle_cast(scan, State) ->
     NewTimes = koan_times(),
-    case changes_present(State#state.times, NewTimes) of
+    ok = case changes_present(State#state.times, NewTimes) of
         true -> gen_event:notify(koan_changes, koan_change);
         false -> ok        
     end,
@@ -56,14 +56,14 @@ code_change(_OldVsn, State, _Extra) ->
 %% private
 
 koan_times() ->
-    {ok, Files} = file:list_dir("src/koans"),
+    {ok, Files} = file:list_dir("src/koans/"),
     [ {F, last_write_of(F)} || F <- Files, is_koan(F)].
 
 is_koan(File) ->
-    re:run(File, "^\\d\\d-\\w+\\.eko$", [{capture, none}]) =:= match.    
+    re:run(File, "^\\d\\d_\\w+\\.eko$", [{capture, none}]) =:= match.
 
 last_write_of(File) ->
-    {ok, Info} = file:read_file_info("src/" ++ File),
+    {ok, Info} = file:read_file_info("src/koans/" ++ File),
     Info#file_info.mtime.
 
 changes_present([], []) ->
@@ -93,5 +93,13 @@ changes_test_() ->
     {"has no changes when all entries were known and dates are not newer", ?_assertNot(changes_present([GenericEntry], [GenericEntry]))}
   ].
 
-
+is_koan_test_() ->
+    [   {"this is how a koan filename looks like", ?_assert(is_koan("01_matching.eko"))},
+        {"when starting with three digits it's not a koan", ?_assertNot(is_koan("001_matching.eko"))},
+        {"when starting with one digit it's not a koan", ?_assertNot(is_koan("1_matching.eko"))},
+        {"followed by an hypen is not a koan", ?_assertNot(is_koan("01-matching.eko"))},
+        {"with spaces is not a koan", ?_assertNot(is_koan("01_ma tching.eko"))},
+        {"with extension different than .eko is not a koan", ?_assertNot(is_koan("01_matching.erl"))},
+        {"without extension is not a koan", ?_assertNot(is_koan("01_matching"))}
+    ].
 -endif.
