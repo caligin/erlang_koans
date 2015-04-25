@@ -36,9 +36,18 @@ init(_) ->
 run()->
   Dir = "src/koans/", %% todo: configurable?
   {ok, KoanFiles} = file:list_dir(Dir),
-  [ run_koan( Dir ++ KoanFile) || KoanFile <- lists:sort(KoanFiles)].
+  KoanFilePaths = [ Dir ++ KoanFile || KoanFile <- lists:sort(KoanFiles)],
+  run_koans(KoanFilePaths).
 
 %% private
+
+run_koans([]) ->
+  ok;
+run_koans([KoanFilePath | Others]) ->
+  case run_koan(KoanFilePath) of
+    stop -> ok;
+    ok -> run_koans(Others)
+  end.
 
 run_koan(KoanFilename) -> 
     {ok, Bin} = file:read_file(KoanFilename),
@@ -67,7 +76,7 @@ execute_koans([]) ->
 execute_koans([H | T]) ->
   case execute_koan(H) of
     ok -> execute_koans(T);
-    {error, _Whatever} -> ok
+    {error, _Whatever} -> stop
   end.
 
 execute_koan({_Meditation, Expression} = Koan) ->
