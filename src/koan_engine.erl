@@ -34,7 +34,9 @@ init(_) ->
 %% API
 
 run()->
-  run_koan("src/01-equalities.eko").
+  Dir = "src/koans/", %% todo: configurable?
+  {ok, KoanFiles} = file:list_dir(Dir),
+  [ run_koan( Dir ++ KoanFile) || KoanFile <- lists:sort(KoanFiles)].
 
 %% private
 
